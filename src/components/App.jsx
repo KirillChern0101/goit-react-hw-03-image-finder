@@ -16,6 +16,7 @@ export class App extends Component {
     modalOpen: false,
     modalImg: '',
     modalAlt: '',
+    showButton: false,
   };
 
   handleSubmit = async e => {
@@ -27,10 +28,11 @@ export class App extends Component {
     }
     const response = await fetchImages(inputForSearch.value, 1);
     this.setState({
-      images: response,
+      images: response.hits,
       isLoading: false,
       currentSearch: inputForSearch.value,
       pageNr: 1,
+      showButton: this.state.pageNr !== Math.ceil(response.total / 12),
     });
   };
 
@@ -40,8 +42,9 @@ export class App extends Component {
       this.state.pageNr + 1
     );
     this.setState({
-      images: [...this.state.images, ...response],
+      images: [...this.state.images, ...response.hits],
       pageNr: this.state.pageNr + 1,
+      showButton: this.state.pageNr !== Math.ceil(response.total / 12),
     });
   };
 
@@ -81,20 +84,22 @@ export class App extends Component {
           paddingBottom: '24px',
         }}
       >
-        {this.state.isLoading ? (
-          <Loader />
-        ) : (
-          <React.Fragment>
-            <Searchbar onSubmit={this.handleSubmit} />
-            <ImageGallery
-              onImageClick={this.handleImageClick}
-              images={this.state.images}
-            />
-            {this.state.images.length > 0 ? (
-              <Button onClick={this.handleClickMore} />
-            ) : null}
-          </React.Fragment>
-        )}
+        <React.Fragment>
+          <Searchbar onSubmit={this.handleSubmit} />
+          {this.state.isLoading ? (
+            <Loader />
+          ) : (
+            <React.Fragment>
+              <ImageGallery
+                onImageClick={this.handleImageClick}
+                images={this.state.images}
+              />
+              {this.state.images.length > 0 && this.state.showButton ? (
+                <Button show={this.state.show} onClick={this.handleClickMore} />
+              ) : null}
+            </React.Fragment>
+          )}
+        </React.Fragment>
         {this.state.modalOpen ? (
           <Modal
             src={this.state.modalImg}
