@@ -20,31 +20,23 @@ export class App extends Component {
   };
 
   handleSubmit = async e => {
-    e.preventDefault();
     this.setState({ isLoading: true });
-    const inputForSearch = e.target.elements.inputForSearch;
-    if (inputForSearch.value.trim() === '') {
-      return;
-    }
-    const response = await fetchImages(inputForSearch.value, 1);
+
     this.setState({
-      images: response.hits,
+      currentSearch: e.query.value,
+      images: [],
       isLoading: false,
-      currentSearch: inputForSearch.value,
       pageNr: 1,
-      showButton: this.state.pageNr !== Math.ceil(response.total / 12),
+      modalOpen: false,
+      modalImg: '',
+      modalAlt: '',
+      showButton: false,
     });
   };
 
   handleClickMore = async () => {
-    const response = await fetchImages(
-      this.state.currentSearch,
-      this.state.pageNr + 1
-    );
-    this.setState({
-      images: [...this.state.images, ...response.hits],
-      pageNr: this.state.pageNr + 1,
-      showButton: this.state.pageNr !== Math.ceil(response.total / 12),
+    this.setState(prevState => {
+      return { pageNr: prevState.pageNr + 1 };
     });
   };
 
@@ -74,6 +66,22 @@ export class App extends Component {
     window.addEventListener('keydown', this.handleKeyDown);
   }
 
+  async componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.currentSearch !== this.state.currentSearch ||
+      prevState.pageNr !== this.state.pageNr
+    ) {
+      const response = await fetchImages(
+        this.state.currentSearch,
+        this.state.pageNr
+      );
+      this.setState({
+        images: [...this.state.images, ...response.hits],
+        showButton: this.state.pageNr !== Math.ceil(response.total / 12),
+      });
+    }
+  }
+
   render() {
     return (
       <div
@@ -85,7 +93,7 @@ export class App extends Component {
         }}
       >
         <React.Fragment>
-          <Searchbar onSubmit={this.handleSubmit} />
+          <Searchbar handleSubmit={this.handleSubmit} />
           {this.state.isLoading ? (
             <Loader />
           ) : (
