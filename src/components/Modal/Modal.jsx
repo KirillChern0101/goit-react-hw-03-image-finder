@@ -1,21 +1,34 @@
 import css from './Modal.module.css';
 import propTypes from 'prop-types';
+import { Component } from 'react';
 
-export const Modal = ({ src, alt, handleClose }) => {
-  const checkBeforeClose = e => {
-    if (e.target === e.currentTarget) {
-      handleClose();
+export class Modal extends Component {
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown = event => {
+    if (event.code === 'Escape') {
+      this.handleModalClose();
     }
   };
 
-  return (
-    <div className={css.Overlay} onClick={checkBeforeClose}>
-      <div className={css.Modal}>
-        <img src={src} alt={alt} />
+  render() {
+    const { src, alt } = this.props;
+
+    return (
+      <div className={css.Overlay} onClick={this.checkBeforeClose}>
+        <div className={css.Modal}>
+          <img src={src} alt={alt} />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 Modal.propTypes = {
   src: propTypes.string.isRequired,

@@ -21,7 +21,6 @@ export class App extends Component {
 
   handleSubmit = async e => {
     this.setState({ isLoading: true });
-
     this.setState({
       currentSearch: e.query.value,
       images: [],
@@ -56,16 +55,6 @@ export class App extends Component {
     });
   };
 
-  handleKeyDown = event => {
-    if (event.code === 'Escape') {
-      this.handleModalClose();
-    }
-  };
-
-  async componentDidMount() {
-    window.addEventListener('keydown', this.handleKeyDown);
-  }
-
   async componentDidUpdate(prevProps, prevState) {
     if (
       prevState.currentSearch !== this.state.currentSearch ||
@@ -75,6 +64,7 @@ export class App extends Component {
         this.state.currentSearch,
         this.state.pageNr
       );
+
       this.setState({
         images: [...this.state.images, ...response.hits],
         showButton: this.state.pageNr !== Math.ceil(response.total / 12),
@@ -102,19 +92,19 @@ export class App extends Component {
                 onImageClick={this.handleImageClick}
                 images={this.state.images}
               />
-              {this.state.images.length > 0 && this.state.showButton ? (
+              {this.state.images.length > 0 && this.state.showButton && (
                 <Button show={this.state.show} onClick={this.handleClickMore} />
-              ) : null}
+              )}
             </React.Fragment>
           )}
         </React.Fragment>
-        {this.state.modalOpen ? (
+        {this.state.modalOpen && (
           <Modal
             src={this.state.modalImg}
             alt={this.state.modalAlt}
             handleClose={this.handleModalClose}
           />
-        ) : null}
+        )}
       </div>
     );
   }
