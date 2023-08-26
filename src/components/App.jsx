@@ -20,7 +20,7 @@ export class App extends Component {
   };
 
   handleSubmit = async e => {
-    this.setState({ isLoading: true });
+    // this.setState({ isLoading: true });
     this.setState({
       currentSearch: e.query.value,
       images: [],
@@ -60,15 +60,20 @@ export class App extends Component {
       prevState.currentSearch !== this.state.currentSearch ||
       prevState.pageNr !== this.state.pageNr
     ) {
-      const response = await fetchImages(
-        this.state.currentSearch,
-        this.state.pageNr
-      );
+      this.setState({ isLoading: true });
+      try {
+        const response = await fetchImages(
+          this.state.currentSearch,
+          this.state.pageNr
+        );
 
-      this.setState({
-        images: [...this.state.images, ...response.hits],
-        showButton: this.state.pageNr !== Math.ceil(response.total / 12),
-      });
+        this.setState({
+          images: [...this.state.images, ...response.hits],
+          showButton: this.state.pageNr !== Math.ceil(response.total / 12),
+        });
+      } finally {
+        this.setState({ isLoading: false });
+      }
     }
   }
 
@@ -84,18 +89,14 @@ export class App extends Component {
       >
         <React.Fragment>
           <Searchbar handleSubmit={this.handleSubmit} />
-          {this.state.isLoading ? (
-            <Loader />
-          ) : (
-            <React.Fragment>
-              <ImageGallery
-                onImageClick={this.handleImageClick}
-                images={this.state.images}
-              />
-              {this.state.images.length > 0 && this.state.showButton && (
-                <Button show={this.state.show} onClick={this.handleClickMore} />
-              )}
-            </React.Fragment>
+
+          <ImageGallery
+            onImageClick={this.handleImageClick}
+            images={this.state.images}
+          />
+          {this.state.isLoading && <Loader />}
+          {this.state.images.length > 0 && this.state.showButton && (
+            <Button show={this.state.show} onClick={this.handleClickMore} />
           )}
         </React.Fragment>
         {this.state.modalOpen && (
