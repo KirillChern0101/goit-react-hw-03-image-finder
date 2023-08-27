@@ -13,7 +13,13 @@ export class Modal extends Component {
 
   handleKeyDown = event => {
     if (event.code === 'Escape') {
-      this.handleModalClose();
+      this.props.handleClose();
+    }
+  };
+
+  handleClick = event => {
+    if (event.target === event.currentTarget) {
+      this.props.handleClose();
     }
   };
 
@@ -21,7 +27,7 @@ export class Modal extends Component {
     const { src, alt } = this.props;
 
     return (
-      <div className={css.Overlay} onClick={this.checkBeforeClose}>
+      <div className={css.Overlay} onClick={this.handleClick}>
         <div className={css.Modal}>
           <img src={src} alt={alt} />
         </div>
